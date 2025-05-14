@@ -9,6 +9,7 @@ import com.koj.gym.repository.ClienteRepository;
 
 @RestController
 @RequestMapping("/gym/cliente")
+@CrossOrigin(origins = "*")
 public class ClienteController {
     
     @Autowired
