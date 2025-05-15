@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import axios from 'axios';
+import Swal from 'sweetalert2';
 
 const gym = ref([]);
 const nuevocliente = ref({
@@ -35,6 +36,12 @@ const agregarCliente = async () => {
     } else {
       await axios.post('http://localhost:8080/gym/cliente/insertar-clientes', nuevocliente.value);
       alert('Cliente agregado exitosamente!');
+      Swal.fire({
+        title: 'Cliente agregado',
+        text: 'El cliente ha sido agregado exitosamente.',
+        icon: 'success',
+        confirmButtonText: 'Aceptar'
+      });
     }
     
     await cargargym();
@@ -53,15 +60,39 @@ const editarCliente = (cliente) => {
 };
 
 const eliminarCliente = async (id) => {
-  if (!confirm('¿Estás seguro de eliminar este cliente?')) return;
-  
+  Swal.fire({
+    title: '¿Estás seguro de eliminar el cliente?',
+    text: "No podrás revertir esto",
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Eliminar'
+  }).then(async (result) => {
+    if (result.isConfirmed) {
+      await eliminarClienteConfirmado(id);
+      Swal.fire(
+        'Eliminado',
+        'El cliente ha sido eliminado.',
+        'success'   
+      );
+    }
+  });
+};
+
+const eliminarClienteConfirmado = async (id) => {
   try {
     await axios.delete(`http://localhost:8080/gym/cliente/eliminar-clientes/${id}`);
+    Swal.fire({
+      title: 'Cliente eliminado',
+      text: 'El cliente ha sido eliminado exitosamente.',
+      icon: 'success',
+    });
+    console.log('Cliente eliminado:', id); 
     await cargargym();
-    alert('Cliente eliminado exitosamente');
   } catch (error) {
     console.error('Error al eliminar cliente:', error);
-    alert('Error al eliminar cliente');
+    alert('Error al eliminar cliente: ' + (error.response?.data?.message || error.message));
   }
 };
 
