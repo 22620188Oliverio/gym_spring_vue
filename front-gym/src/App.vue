@@ -259,4 +259,68 @@ onMounted(cargargym);
   color: white;
   background-color: #dc3545;
 }
+.card {
+  border-radius: 12px;
+}
+
+.card-header {
+  background-color: #343a40 !important;
+  color: #fff;
+  font-weight: bold;
+}
+
+.btn-primary {
+  background-color: #dc3545;
+  border-color: #dc3545;
+}
+.btn-primary:hover {
+  background-color: #c82333;
+  border-color: #bd2130;
+}
+
+.btn-outline-primary {
+  color: #dc3545;
+  border-color: #dc3545;
+}
+.btn-outline-primary:hover {
+  background-color: #dc3545;
+  color: white;
+}
+
+.btn-outline-danger {
+  color: #6c757d;
+  border-color: #6c757d;
+}
+.btn-outline-danger:hover {
+  background-color: #6c757d;
+  color: white;
+}
+
+h2, h3 {
+  color: #dc3545;
+}
+
+.table thead {
+  background-color: #343a40;
+  color: white;
+}
+
+.table-hover tbody tr:hover {
+  background-color: #f1f1f1;
+}
+
+.badge {
+  font-size: 0.85em;
+  padding: 0.4em 0.7em;
+}
+.bg-primary {
+  background-color: #dc3545 !important;
+}
+.bg-success {
+  background-color: #28a745 !important;
+}
+.bg-warning {
+  background-color: #ffc107 !important;
+}
+
 </style>
