@@ -4,6 +4,7 @@ import axios from 'axios';
 
 const gym = ref([]);
 const nuevocliente = ref({
+  id: null,
   objetivo: '',
   nombre: '',
   apellido: '',
@@ -13,34 +14,76 @@ const nuevocliente = ref({
   tipoMembresia: ''
 });
 
+const editando = ref(false);
+
 const cargargym = async () => {
-  const response = await axios.get('http://localhost:8080/gym/cliente/traer-clientes');
-  gym.value = response.data;
-  console.log(gym.value);
+  try {
+    const response = await axios.get('http://localhost:8080/gym/cliente/traer-clientes');
+    gym.value = response.data;
+    console.log('Clientes cargados:', gym.value);
+  } catch (error) {
+    console.error('Error al cargar clientes:', error);
+    alert('Error al cargar la lista de clientes');
+  }
 }
 
 const agregarCliente = async () => {
-    await axios.post('http://localhost:8080/gym/cliente/insertar-clientes', nuevocliente.value);
+  try {
+    if (editando.value) {
+      await axios.put(`http://localhost:8080/gym/cliente/editar-clientes/${nuevocliente.value.id}`, nuevocliente.value);
+      alert('Cliente actualizado exitosamente!');
+    } else {
+      await axios.post('http://localhost:8080/gym/cliente/insertar-clientes', nuevocliente.value);
+      alert('Cliente agregado exitosamente!');
+    }
+    
     await cargargym();
-    nuevocliente.value = {
-      objetivo: '',
-      nombre: '',
-      apellido: '',
-      telefono: '',
-      email: '',
-      imagenURL: '',
-      tipoMembresia: ''
-    };
+    limpiarFormulario();
+    editando.value = false;
+  } catch (error) {
+    console.error('Error al guardar cliente:', error);
+    alert('Error al guardar cliente: ' + (error.response?.data?.message || error.message));
+  }
+};
+
+const editarCliente = (cliente) => {
+  nuevocliente.value = { ...cliente };
+  editando.value = true;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 };
 
 const eliminarCliente = async (id) => {
-  await axios.delete(`http://localhost:8080/gym/cliente/eliminar-clientes/${id}`);
-  console.log(`Cliente con ID ${id} eliminado`);
+  if (!confirm('¿Estás seguro de eliminar este cliente?')) return;
+  
+  try {
+    await axios.delete(`http://localhost:8080/gym/cliente/eliminar-clientes/${id}`);
     await cargargym();
-}
+    alert('Cliente eliminado exitosamente');
+  } catch (error) {
+    console.error('Error al eliminar cliente:', error);
+    alert('Error al eliminar cliente');
+  }
+};
+
+const limpiarFormulario = () => {
+  nuevocliente.value = {
+    id: null,
+    objetivo: '',
+    nombre: '',
+    apellido: '',
+    telefono: '',
+    email: '',
+    imagenURL: '',
+    tipoMembresia: ''
+  };
+};
+
+const cancelarEdicion = () => {
+  limpiarFormulario();
+  editando.value = false;
+};
 
 onMounted(cargargym);
-
 </script>
 
 <template>
@@ -52,10 +95,9 @@ onMounted(cargargym);
         <h3 class="text-center">Formulario de registro</h3>
         <form @submit.prevent="agregarCliente">
           <div class="row">
-            <!-- Primera fila: Nombre y Apellidos -->
             <div class="col-md-6 mb-3">
               <label for="nombre" class="form-label">Nombre</label>
-              <input type="text" class="form-control" id="nombre" v-model="nuevocliente.nombre">
+              <input type="text" class="form-control" id="nombre" v-model="nuevocliente.nombre" required>
             </div>
             <div class="col-md-6 mb-3">
               <label for="objetivo" class="form-label">Objetivo</label>
@@ -63,13 +105,11 @@ onMounted(cargargym);
             </div>
             <div class="col-md-6 mb-3">
               <label for="apellido" class="form-label">Apellidos</label>
-              <input type="text" class="form-control" id="apellido" v-model="nuevocliente.apellido">
+              <input type="text" class="form-control" id="apellido" v-model="nuevocliente.apellido" required>
             </div>
-            
-            <!-- Segunda fila: Membresía y Teléfono -->
             <div class="col-md-6 mb-3">
               <label for="tipoMembresia" class="form-label">Tipo de membresía</label>
-              <select class="form-select" id="tipoMembresia" v-model="nuevocliente.tipoMembresia">
+              <select class="form-select" id="tipoMembresia" v-model="nuevocliente.tipoMembresia" required>
                 <option value="Mensual">Mensual</option>
                 <option value="Trimestral">Trimestral</option>
                 <option value="Anual">Anual</option>
@@ -77,23 +117,27 @@ onMounted(cargargym);
             </div>
             <div class="col-md-6 mb-3">
               <label for="telefono" class="form-label">Teléfono</label>
-              <input type="number" class="form-control" id="telefono" v-model="nuevocliente.telefono">
+              <input type="tel" class="form-control" id="telefono" v-model="nuevocliente.telefono" required>
             </div>
-            
-            <!-- Tercera fila: Imagen URL -->
             <div class="col-md-6 mb-3">
               <label for="email" class="form-label">Email</label>
-              <input type="text" class="form-control" id="email" v-model="nuevocliente.email">
+              <input type="email" class="form-control" id="email" v-model="nuevocliente.email">
             </div>
-
             <div class="col-md-12 mb-3">
               <label for="imagenURL" class="form-label">Imagen URL</label>
-              <input type="text" class="form-control" id="imagenURL" v-model="nuevocliente.imagenURL">
+              <input type="url" class="form-control" id="imagenURL" v-model="nuevocliente.imagenURL">
             </div>
           </div>
           
-          <!-- Botón centrado -->
-<button type="submit" class="btn btn-primary">Agregar Cliente</button>
+          <div class="d-flex justify-content-between">
+            <button v-if="editando" type="button" @click="cancelarEdicion" class="btn btn-secondary">
+              Cancelar
+            </button>
+            <div v-else></div>
+            <button type="submit" class="btn btn-primary">
+              {{ editando ? 'Actualizar Cliente' : 'Agregar Cliente' }}
+            </button>
+          </div>
         </form>
       </div>
     </div>
@@ -108,7 +152,6 @@ onMounted(cargargym);
             <table class="table table-hover mb-0">
               <thead class="table-light">
                 <tr>
-                  
                   <th scope="col">Objetivo</th>
                   <th scope="col">Nombre</th>
                   <th scope="col">Apellidos</th>
@@ -121,7 +164,6 @@ onMounted(cargargym);
               </thead>
               <tbody>
                 <tr v-for="(cliente, index) in gym" :key="index">
-                 
                   <td>{{ cliente.objetivo || 'N/A' }}</td>
                   <td>{{ cliente.nombre || 'N/A' }}</td>
                   <td>{{ cliente.apellido || 'N/A' }}</td>
@@ -146,7 +188,7 @@ onMounted(cargargym);
                   </td>
                   <td class="text-center">
                     <div class="btn-group btn-group-sm" role="group">
-                      <button class="btn btn-outline-primary" title="Editar">
+                      <button @click="editarCliente(cliente)" class="btn btn-outline-primary" title="Editar">
                         <i class="bi bi-pencil-fill"></i>
                       </button>
                       <button @click="eliminarCliente(cliente.id)" class="btn btn-outline-danger" title="Eliminar">
@@ -156,7 +198,7 @@ onMounted(cargargym);
                   </td>
                 </tr>
                 <tr v-if="gym.length === 0">
-                  <td colspan="9" class="text-center text-muted py-4">
+                  <td colspan="8" class="text-center text-muted py-4">
                     No hay clientes registrados
                   </td>
                 </tr>
@@ -171,5 +213,19 @@ onMounted(cargargym);
 </template>
 
 <style scoped>
-/* Estilos si los necesitas */
+.object-fit-cover {
+  object-fit: cover;
+}
+.badge {
+  font-size: 0.85em;
+  padding: 0.35em 0.65em;
+}
+.btn-outline-primary:hover {
+  color: white;
+  background-color: #0d6efd;
+}
+.btn-outline-danger:hover {
+  color: white;
+  background-color: #dc3545;
+}
 </style>
