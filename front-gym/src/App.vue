@@ -33,6 +33,12 @@ const agregarCliente = async () => {
     };
 };
 
+const eliminarCliente = async (id) => {
+  await axios.delete(`http://localhost:8080/gym/cliente/eliminar-clientes/${id}`);
+  console.log(`Cliente con ID ${id} eliminado`);
+    await cargargym();
+}
+
 onMounted(cargargym);
 
 </script>
@@ -143,7 +149,7 @@ onMounted(cargargym);
                       <button class="btn btn-outline-primary" title="Editar">
                         <i class="bi bi-pencil-fill"></i>
                       </button>
-                      <button class="btn btn-outline-danger" title="Eliminar">
+                      <button @click="eliminarCliente(cliente.id)" class="btn btn-outline-danger" title="Eliminar">
                         <i class="bi bi-trash-fill"></i>
                       </button>
                     </div>
