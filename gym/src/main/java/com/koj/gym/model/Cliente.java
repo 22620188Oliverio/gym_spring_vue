@@ -7,7 +7,7 @@ public class Cliente {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String numeroMembresia;
+    private String Objetivo;
     private String nombre;
     private String apellido;
     private String telefono;
@@ -20,9 +20,12 @@ public class Cliente {
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     
-    public String getNumeroMembresia() { return numeroMembresia; }
-    public void setNumeroMembresia(String numeroMembresia) { this.numeroMembresia = numeroMembresia; }
-    
+    public String getObjetivo() {
+        return Objetivo;
+    }
+    public void setObjetivo(String objetivo) {
+        Objetivo = objetivo;
+    }
     public String getNombre() { return nombre; }
     public void setNombre(String nombre) { this.nombre = nombre; }
     

@@ -40,7 +40,7 @@ public class ClienteController {
                     clienteExistente.setApellido(cliente.getApellido());
                     clienteExistente.setEmail(cliente.getEmail());
                     clienteExistente.setTelefono(cliente.getTelefono());
-                    clienteExistente.setNumeroMembresia(cliente.getNumeroMembresia());
+                    clienteExistente.setObjetivo(cliente.getObjetivo());
                     clienteExistente.setTipoMembresia(cliente.getTipoMembresia());
                     clienteExistente.setImagenURL(cliente.getImagenURL());
                     Cliente editarAlumno = clienteRepository.save(clienteExistente);
